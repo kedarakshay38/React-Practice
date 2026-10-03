@@ -19,12 +19,25 @@ export function Component() {
   const [role, setRole] = useState('All')
 
   useEffect(() => {
-    fetchUsers().then(setUsers)
+    fetchUsers().then(setUsers)//calling setUsers() with data arrived from promise .then()
   }, [])
 
   // TODO: derive `filtered` from users + search + role.
   //       (Prefer useMemo so it only recomputes when inputs change.)
-  const filtered = users
+  const filtered = useMemo(()=>{
+    const q=search.toLowerCase().trim();
+
+
+const userfilter= users.filter((user)=>{
+  const matchedUserNameEmail=  !q || user.name.toLowerCase().includes(q) || user.email.toLowerCase().includes(q)
+const matchedRole= role==='All' || role==user.role;
+
+return matchedUserNameEmail&& matchedRole
+
+})
+
+return userfilter
+  },[users,search,role])//usememo is the hook witch is used to memoise the value of expensive calculation so that it does not repet same calculation
 
   return (
     <div>
@@ -52,7 +65,14 @@ export function Component() {
               <td>{u.name}</td><td>{u.email}</td><td>{u.role}</td><td>{u.status}</td>
             </tr>
           ))}
-          {/* TODO: if filtered is empty, show a single row saying "No results" */}
+          {
+            filtered.length === 0 && (
+              <tr>
+              <td colSpan={4} className="status">No results</td>
+                
+              </tr>
+            )
+          }
         </tbody>
       </table>
     </div>
