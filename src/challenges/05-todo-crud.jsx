@@ -24,14 +24,29 @@ export function Component() {
 
   function addTodo() {
     // TODO: append a new todo { id, text, done:false } and clear the input.
+    if(text){
+      setTodos([...todos,{id:todos.length-1 ,text:text, done:false}]);
+    }
   }
 
   function toggleTodo(id) {
     // TODO: flip `done` for the matching todo (immutably).
+    
+    setTodos(todos.map((todo)=>{
+      if(todo.id===id)
+      {
+        todo.done=!todo.done;
+        return todo;
+      }
+      return todo;
+    }))
   }
 
   function deleteTodo(id) {
     // TODO: remove the matching todo.
+    setTodos(todos.filter(
+      (todo)=> todo.id===id
+    ))
   }
 
   return (
