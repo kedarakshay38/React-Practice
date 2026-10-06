@@ -27,6 +27,9 @@ const COLUMNS = [
 export function Component() {
   const [users, setUsers] = useState([])
   // TODO: add state for sortKey, sortDir ('asc'|'desc') and page.
+ const [sortKey, setSortKey] = useState(null)
+  const [sortDir, setSortDir] = useState('asc')
+
   const [page, setPage] = useState(1)
 
   useEffect(() => {
@@ -35,12 +38,44 @@ export function Component() {
 
   function handleSort(key) {
     // TODO: set sort key / toggle direction, and reset to page 1.
+  
+    if(key===sortKey){
+
+      setSortDir((d)=>{
+        return d=== 'asc'?'desc':'desc'
+      })
+
+    }else{
+      setSortKey(key);
+       setSortDir('asc')
+
+    }
+setPage(1);
+
   }
 
   // TODO: produce `sorted` (a sorted copy of users) then `pageRows` (the slice
   //       for the current page). Remember not to mutate `users` with .sort().
-  const pageRows = users.slice(0, PAGE_SIZE)
-  const totalPages = Math.max(1, Math.ceil(users.length / PAGE_SIZE))
+  const sorted = useMemo(() => {
+    if (!sortKey) return users
+    const copy = [...users]
+    copy.sort((a, b) => {
+      const av = a[sortKey]
+      const bv = b[sortKey]
+      let cmp
+      if (typeof av === 'number' && typeof bv === 'number') {
+        cmp = av - bv
+      } else {
+        cmp = String(av).localeCompare(String(bv))
+      }  
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+    return copy
+  }, [users, sortKey, sortDir])
+
+  
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE))
+  const pageRows = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
     <div>
@@ -91,7 +126,7 @@ export function Solution() {
     setPage(1)
   }
 
-  const sorted = useMemo(() => {
+const sorted = useMemo(() => {
     if (!sortKey) return users
     const copy = [...users]
     copy.sort((a, b) => {
@@ -102,7 +137,7 @@ export function Solution() {
         cmp = av - bv
       } else {
         cmp = String(av).localeCompare(String(bv))
-      }
+      }  
       return sortDir === 'asc' ? cmp : -cmp
     })
     return copy
